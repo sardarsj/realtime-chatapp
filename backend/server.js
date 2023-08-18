@@ -1,6 +1,6 @@
 const express = require("express");
-const dotenv = require("dotenv");
-const { chats } = require("./data/data");
+const dotenv = require("dotenv"); //port vgera lyi use kita h
+const { chats } = require("./data/data"); //data of chats coming from data.js
 
 const app = express();
 dotenv.config();
@@ -10,14 +10,14 @@ app.get("/", (req, res) => {
   res.send("API is running successfully"); 
 });
 
-///api/chats is a endpoint
+///api/chats is an endpoint
 app.get("/api/chat", (req, res) => {
-  res.send(chats);
+  res.send(chats); //res shyd display krda h data on screen (have to check on internet)
 });
 
 app.get("/api/chat/:id", (req, res) => {
   // console.log(req.params.id);
-  const singleChat = chats.find((c) => c._id === req.params.id);``
+  const singleChat = chats.find((c) => c._id === req.params.id);
   res.send(singleChat);
 });
 
