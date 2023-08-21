@@ -1,9 +1,12 @@
 const express = require("express");
 const dotenv = require("dotenv"); //port vgera lyi use kita h
 const { chats } = require("./data/data"); //data of chats coming from data.js
+const connectDB = require("./config/db");
 
-const app = express();
+
 dotenv.config();
+connectDB();
+const app = express();
 
 //making get request to / route
 app.get("/", (req, res) => {
