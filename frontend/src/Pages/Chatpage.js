@@ -1,25 +1,19 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
-// axios is used to fetch data from backend
+import { Box } from "@chakra-ui/react";
+import { ChatState } from "../Context/ChatProvider";
+import SideDrawer from "../components/miscellaneous/SideDrawer";
+import MyChats from "../components/miscellaneous/MyChats";
+import ChatBox from "../components/miscellaneous/ChatBox";
 
 const Chatpage = () => {
-  // chats is basically use to store the data and setChats to modify it...useState v ek hook h
-  const [chats, setChats] = useState([]);
+  const { user } = ChatState();
 
-  const fetchChats = async () => {
-    const { data } = await axios.get("/api/chat");
-    setChats(data);
-  };
-
-  useEffect(() => {
-    fetchChats();
-  }, []);
   return (
-    <div>
-      {/* we are basically mapping through chat and displaying the name on the screen and in mapping everyone should have a unique key so thatswhy we used "key" */}
-      {chats.map((chat) => (
-        <div key={chat._id}>{chat.chatName}</div>
-      ))}
+    <div style={{ width: "100%" }}>
+      {user && <SideDrawer />}
+      <Box d="flex" justifyContent="space-between" w="100%" h="91.5vh" p="10px">
+        {user && <MyChats />}
+        {user && <ChatBox />}
+      </Box>
     </div>
   );
 };
