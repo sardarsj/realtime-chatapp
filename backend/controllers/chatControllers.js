@@ -1,7 +1,10 @@
 const asyncHandler = require("express-async-handler");
-const Chat = require("../models/chatModels");
+const Chat = require("../models/chatModel");
 const User = require("../models/userModel");
 
+//@description     Create or fetch One to One Chat
+//@route           POST /api/chat/
+//@access          Protected
 const accessChat = asyncHandler(async (req, res) => {
   const { userId } = req.body;
 
@@ -19,6 +22,7 @@ const accessChat = asyncHandler(async (req, res) => {
   })
     .populate("users", "-password")
     .populate("latestMessage");
+
   isChat = await User.populate(isChat, {
     path: "latestMessage.sender",
     select: "name pic email",
@@ -35,12 +39,11 @@ const accessChat = asyncHandler(async (req, res) => {
 
     try {
       const createdChat = await Chat.create(chatData);
-
       const FullChat = await Chat.findOne({ _id: createdChat._id }).populate(
         "users",
         "-password"
       );
-      res.status(200).send(FullChat);
+      res.status(200).json(FullChat);
     } catch (error) {
       res.status(400);
       throw new Error(error.message);
@@ -48,6 +51,9 @@ const accessChat = asyncHandler(async (req, res) => {
   }
 });
 
+//@description     Fetch all chats for a user
+//@route           GET /api/chat/
+//@access          Protected
 const fetchChats = asyncHandler(async (req, res) => {
   try {
     Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
@@ -68,9 +74,12 @@ const fetchChats = asyncHandler(async (req, res) => {
   }
 });
 
+//@description     Create New Group Chat
+//@route           POST /api/chat/group
+//@access          Protected
 const createGroupChat = asyncHandler(async (req, res) => {
   if (!req.body.users || !req.body.name) {
-    return res.status(400).send({ message: "Please fill all the fields" });
+    return res.status(400).send({ message: "Please Fill all the feilds" });
   }
 
   var users = JSON.parse(req.body.users);
@@ -102,13 +111,16 @@ const createGroupChat = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Rename Group
+// @route   PUT /api/chat/rename
+// @access  Protected
 const renameGroup = asyncHandler(async (req, res) => {
   const { chatId, chatName } = req.body;
 
   const updatedChat = await Chat.findByIdAndUpdate(
     chatId,
     {
-      chatName,
+      chatName: chatName,
     },
     {
       new: true,
@@ -125,15 +137,50 @@ const renameGroup = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Remove user from Group
+// @route   PUT /api/chat/groupremove
+// @access  Protected
+const removeFromGroup = asyncHandler(async (req, res) => {
+  const { chatId, userId } = req.body;
+
+  // check if the requester is admin
+
+  const removed = await Chat.findByIdAndUpdate(
+    chatId,
+    {
+      $pull: { users: userId },
+    },
+    {
+      new: true,
+    }
+  )
+    .populate("users", "-password")
+    .populate("groupAdmin", "-password");
+
+  if (!removed) {
+    res.status(404);
+    throw new Error("Chat Not Found");
+  } else {
+    res.json(removed);
+  }
+});
+
+// @desc    Add user to Group / Leave
+// @route   PUT /api/chat/groupadd
+// @access  Protected
 const addToGroup = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body;
+
+  // check if the requester is admin
 
   const added = await Chat.findByIdAndUpdate(
     chatId,
     {
       $push: { users: userId },
     },
-    { new: true }
+    {
+      new: true,
+    }
   )
     .populate("users", "-password")
     .populate("groupAdmin", "-password");
@@ -143,27 +190,6 @@ const addToGroup = asyncHandler(async (req, res) => {
     throw new Error("Chat Not Found");
   } else {
     res.json(added);
-  }
-});
-
-const removeFromGroup = asyncHandler(async (req, res) => {
-  const { chatId, userId } = req.body;
-
-  const removed = await Chat.findByIdAndUpdate(
-    chatId,
-    {
-      $pull: { users: userId },
-    },
-    { new: true }
-  )
-    .populate("users", "-password")
-    .populate("groupAdmin", "-password");
-
-  if (!added) {
-    res.status(404);
-    throw new Error("Chat Not Found");
-  } else {
-    res.json(removed);
   }
 });
 
