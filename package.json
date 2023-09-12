@@ -1,0 +1,23 @@
+{
+  "name": "new-app",
+  "version": "1.0.0",
+  "description": "creating new realtime-chat app",
+  "main": "server.js",
+  "scripts": {
+    "start": "nodemon backend/server.js --ignore client",
+    "dev": "node backend/server"
+  },
+  "author": "sardarsj",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-async-handler": "^1.2.0",
+    "framer-motion": "^10.16.0",
+    "jsonwebtoken": "^9.0.1",
+    "mongoose": "^7.4.3",
+    "nodemon": "^3.0.1",
+    "socket.io": "^4.7.2"
+  }
+}
